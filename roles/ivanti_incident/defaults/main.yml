@@ -1,0 +1,16 @@
+---
+ivanti_base_url: ""
+ivanti_token: "{{ lookup('env', 'IVANTI_TOKEN') | default('', true) }}"
+ivanti_username: "{{ lookup('env', 'IVANTI_USERNAME') | default('', true) }}"
+ivanti_password: "{{ lookup('env', 'IVANTI_PASSWORD') | default('', true) }}"
+ivanti_tenant: "{{ lookup('env', 'IVANTI_TENANT') | default('', true) }}"
+ivanti_validate_certs: true
+ivanti_incident_state: present
+ivanti_incident_rec_id: ""
+ivanti_incident_subject: ""
+ivanti_incident_description: ""
+ivanti_incident_priority: ""
+ivanti_incident_status: ""
+ivanti_incident_fields: {}
+ivanti_incident_query: ""
+ivanti_incident_quick_action: ""

@@ -1,0 +1,23 @@
+namespace: mlowcher
+name: ivanti_itsm
+version: 0.1.0
+readme: README.md
+authors:
+  - Mark Lowcher <mlowcher@hotmail.com>
+description: Ansible collection for Ivanti Neurons for ITSM / Ivanti Service Manager REST API automation.
+license:
+  - MIT
+tags:
+  - ivanti
+  - itsm
+  - incident
+  - automation
+  - aap
+  - eda
+  - servicenow
+repository: https://github.com/mlowcher61/ivanti_itsm
+issues: https://github.com/mlowcher61/ivanti_itsm/issues
+build_ignore:
+  - .gitignore
+  - .github
+  - .venv

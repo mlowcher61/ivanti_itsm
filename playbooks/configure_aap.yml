@@ -1,0 +1,146 @@
+---
+# =============================================================================
+# Configure Ansible Automation Platform for the Ivanti ITSM solution.
+#
+#   ansible-playbook playbooks/configure_aap.yml
+#
+# Prerequisites:
+#   * AAP_HOSTNAME + AAP_TOKEN (or AAP_USERNAME/AAP_PASSWORD) exported.
+#   * IVANTI_TOKEN exported (stored only in the AAP credential, not git).
+#   * Collections installed:
+#       ansible-galaxy collection install -r collections/requirements.yml
+#
+# Edit vars/aap_config.yml to match your environment before running.
+# All tasks are idempotent and support --check.
+# =============================================================================
+- name: Configure AAP for Ivanti ITSM (config as code)
+  hosts: localhost
+  gather_facts: false
+  vars_files:
+    - ../vars/aap_config.yml
+
+  # Connection settings applied once to every module via action groups, so
+  # individual tasks stay focused on the object they manage.
+  module_defaults:
+    group/ansible.platform.gateway:
+      aap_hostname: "{{ aap_hostname }}"
+      aap_username: "{{ aap_username | default(omit, true) }}"
+      aap_password: "{{ aap_password | default(omit, true) }}"
+      aap_token: "{{ aap_token | default(omit, true) }}"
+      aap_validate_certs: "{{ aap_validate_certs }}"
+    group/ansible.controller.controller:
+      controller_host: "{{ aap_hostname }}"
+      controller_username: "{{ aap_username | default(omit, true) }}"
+      controller_password: "{{ aap_password | default(omit, true) }}"
+      controller_oauthtoken: "{{ aap_token | default(omit, true) }}"
+      validate_certs: "{{ aap_validate_certs }}"
+    group/ansible.eda.eda:
+      aap_hostname: "{{ aap_hostname }}"
+      aap_username: "{{ aap_username | default(omit, true) }}"
+      aap_password: "{{ aap_password | default(omit, true) }}"
+      aap_token: "{{ aap_token | default(omit, true) }}"
+      aap_validate_certs: "{{ aap_validate_certs }}"
+
+  tasks:
+    # --- Gateway -------------------------------------------------------------
+    - name: Ensure organization exists
+      ansible.platform.organization:
+        name: "{{ aap_organization }}"
+        state: present
+
+    # --- Controller: foundation objects --------------------------------------
+    - name: Ensure execution environment exists
+      ansible.controller.execution_environment:
+        name: "{{ aap_execution_environment.name }}"
+        image: "{{ aap_execution_environment.image }}"
+        organization: "{{ aap_organization }}"
+        state: present
+
+    - name: Ensure inventory exists
+      ansible.controller.inventory:
+        name: "{{ aap_inventory.name }}"
+        organization: "{{ aap_organization }}"
+        state: present
+
+    - name: Ensure localhost is in the inventory
+      ansible.controller.host:
+        name: localhost
+        inventory: "{{ aap_inventory.name }}"
+        variables:
+          ansible_connection: local
+          ansible_python_interpreter: "{{ '{{ ansible_playbook_python }}' }}"
+        state: present
+
+    # --- Controller: Ivanti custom credential --------------------------------
+    - name: Ensure Ivanti custom credential type exists
+      ansible.controller.credential_type:
+        name: "{{ aap_credential_type.name }}"
+        kind: cloud
+        inputs: "{{ aap_credential_type.inputs }}"
+        injectors: "{{ aap_credential_type.injectors }}"
+        state: present
+
+    - name: Ensure Ivanti credential exists
+      ansible.controller.credential:
+        name: "{{ aap_credential.name }}"
+        credential_type: "{{ aap_credential_type.name }}"
+        organization: "{{ aap_organization }}"
+        inputs:
+          ivanti_base_url: "{{ ivanti_base_url }}"
+          # Sourced from the environment at apply time - never committed.
+          ivanti_token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
+        state: present
+
+    # --- Controller: project + job templates ---------------------------------
+    - name: Ensure controller project exists (and sync it)
+      ansible.controller.project:
+        name: "{{ aap_project.name }}"
+        organization: "{{ aap_organization }}"
+        scm_type: git
+        scm_url: "{{ aap_project.scm_url }}"
+        scm_branch: "{{ aap_project.scm_branch | default('main') }}"
+        scm_update_on_launch: true
+        default_environment: "{{ aap_execution_environment.name }}"
+        wait: true
+        state: present
+
+    - name: Ensure job templates exist
+      ansible.controller.job_template:
+        name: "{{ item.name }}"
+        organization: "{{ aap_organization }}"
+        project: "{{ aap_project.name }}"
+        playbook: "{{ item.playbook }}"
+        inventory: "{{ aap_inventory.name }}"
+        execution_environment: "{{ aap_execution_environment.name }}"
+        credentials:
+          - "{{ aap_credential.name }}"
+        ask_variables_on_launch: true
+        state: present
+      loop: "{{ aap_job_templates }}"
+      loop_control:
+        label: "{{ item.name }}"
+
+    # --- Event-Driven Ansible: closed-loop remediation -----------------------
+    - name: Ensure decision environment exists
+      ansible.eda.decision_environment:
+        name: "{{ aap_decision_environment.name }}"
+        image: "{{ aap_decision_environment.image }}"
+        organization_name: "{{ aap_organization }}"
+        state: present
+
+    - name: Ensure EDA project exists
+      ansible.eda.project:
+        name: "{{ aap_eda_project.name }}"
+        url: "{{ aap_eda_project.scm_url }}"
+        organization_name: "{{ aap_organization }}"
+        state: present
+
+    - name: Ensure rulebook activation exists
+      ansible.eda.rulebook_activation:
+        name: "{{ aap_rulebook_activation.name }}"
+        project_name: "{{ aap_eda_project.name }}"
+        rulebook: "{{ aap_rulebook_activation.rulebook }}"
+        decision_environment_name: "{{ aap_decision_environment.name }}"
+        organization_name: "{{ aap_organization }}"
+        enabled: "{{ aap_rulebook_activation.enabled | default(true) }}"
+        state: present

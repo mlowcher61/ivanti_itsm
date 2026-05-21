@@ -1,0 +1,27 @@
+---
+# Collections required to RUN this solution and to APPLY the config-as-code layer.
+# Install with:  ansible-galaxy collection install -r collections/requirements.yml
+#
+# AAP will also read this file automatically when it syncs the project, so the
+# execution environment used by the job templates resolves these dependencies.
+collections:
+  # This collection (Ivanti ITSM modules + roles). Pin to your published version
+  # or install from git during development.
+  - name: mlowcher.ivanti_itsm
+    source: https://github.com/mlowcher61/ivanti_itsm.git
+    type: git
+    version: main
+
+  # AAP 2.5+ platform (gateway) objects: organizations, teams, users.
+  - name: ansible.platform
+    version: ">=2.0.0"
+
+  # AAP controller objects: projects, credential types, credentials,
+  # inventories, execution environments, job templates.
+  - name: ansible.controller
+    version: ">=4.6.0"
+
+  # Event-Driven Ansible objects: decision environments, EDA projects,
+  # rulebook activations.
+  - name: ansible.eda
+    version: ">=2.0.0"

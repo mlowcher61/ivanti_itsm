@@ -1,0 +1,100 @@
+---
+# =============================================================================
+# Ivanti ITSM - Ansible Automation Platform config-as-code
+# =============================================================================
+# This is the ONE file most users need to edit. It declares every AAP object
+# the solution needs. Run it with:
+#
+#   ansible-playbook playbooks/configure_aap.yml
+#
+# SECRETS ARE NEVER STORED HERE.
+#   * AAP connection auth comes from AAP_* environment variables (see below).
+#   * The Ivanti API token is read from the IVANTI_TOKEN environment variable
+#     at apply time and stored only inside the AAP custom credential.
+# =============================================================================
+
+# --- AAP connection (gateway / controller / EDA share the same host) ---------
+# Prefer a token (required when connecting through the 2.5+ gateway).
+# Set AAP_HOSTNAME and AAP_TOKEN (or AAP_USERNAME / AAP_PASSWORD) in your env.
+aap_hostname: "{{ lookup('env', 'AAP_HOSTNAME') | default('https://aap.example.com', true) }}"
+aap_username: "{{ lookup('env', 'AAP_USERNAME') | default('', true) }}"
+aap_password: "{{ lookup('env', 'AAP_PASSWORD') | default('', true) }}"
+aap_token: "{{ lookup('env', 'AAP_TOKEN') | default('', true) }}"
+aap_validate_certs: true
+
+# --- Organization (gateway object, managed by ansible.platform) --------------
+# "Default" exists on every install so this works out of the box. Change it to
+# a dedicated org and the playbook will create it.
+aap_organization: "Default"
+
+# --- Ivanti connection (non-secret config) -----------------------------------
+ivanti_base_url: "https://your-tenant.example.com"
+
+# --- Execution & Decision environments ---------------------------------------
+# Point these at images that bundle this collection (build with ansible-builder
+# using collections/requirements.yml).
+aap_execution_environment:
+  name: "Ivanti ITSM EE"
+  image: "registry.example.com/ivanti-itsm-ee:latest"
+
+aap_decision_environment:
+  name: "Ivanti ITSM DE"
+  image: "registry.example.com/ivanti-itsm-de:latest"
+
+# --- Inventory (job templates need one; localhost runs the REST calls) -------
+aap_inventory:
+  name: "Ivanti ITSM Localhost"
+
+# --- Controller project (source of the operational playbooks) ----------------
+aap_project:
+  name: "Ivanti ITSM"
+  scm_url: "https://github.com/mlowcher61/ivanti_itsm.git"
+  scm_branch: "main"
+
+# --- EDA project (source of the rulebooks) -----------------------------------
+aap_eda_project:
+  name: "Ivanti ITSM EDA"
+  scm_url: "https://github.com/mlowcher61/ivanti_itsm.git"
+
+# --- Custom credential type for Ivanti ---------------------------------------
+# The injectors map credential fields to the IVANTI_* env vars the modules read.
+# Jinja in injectors is rendered by AAP at JOB run time, so it is tagged
+# !unsafe to stop THIS playbook from trying to resolve it.
+aap_credential_type:
+  name: "Ivanti ITSM"
+  inputs:
+    fields:
+      - id: ivanti_base_url
+        type: string
+        label: "Ivanti Base URL"
+      - id: ivanti_token
+        type: string
+        label: "Ivanti API Token"
+        secret: true
+    required:
+      - ivanti_base_url
+      - ivanti_token
+  injectors:
+    env:
+      IVANTI_BASE_URL: !unsafe "{{ ivanti_base_url }}"
+      IVANTI_TOKEN: !unsafe "{{ ivanti_token }}"
+
+# Credential instance. The token is pulled from the IVANTI_TOKEN env var at
+# apply time so it never lands in git.
+aap_credential:
+  name: "Ivanti ITSM"
+
+# --- Job templates -----------------------------------------------------------
+aap_job_templates:
+  - name: "Ivanti - Create Incident"
+    playbook: "playbooks/create_incident.yml"
+  - name: "Ivanti - Query Incidents"
+    playbook: "playbooks/query_incidents.yml"
+  - name: "Ivanti - Close Incident"
+    playbook: "playbooks/close_incident.yml"
+
+# --- EDA rulebook activation (closed-loop drift -> incident) -----------------
+aap_rulebook_activation:
+  name: "Ivanti Drift Incident"
+  rulebook: "ivanti_drift.yml"
+  enabled: true

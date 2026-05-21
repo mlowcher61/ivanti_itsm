@@ -1,0 +1,136 @@
+# mlowcher.ivanti_itsm
+
+Starter Ansible collection for automating Ivanti Neurons for ITSM / Ivanti Service Manager using the REST/OData Business Object API.
+
+This collection is intentionally REST-first. Ivanti ITSM tenant schemas are often customized, so the modules support both simple common incident parameters and raw `fields` dictionaries.
+
+## Included
+
+- `mlowcher.ivanti_itsm.ivanti_incident`
+  - create, get, update, delete, close, resolve incident records
+- `mlowcher.ivanti_itsm.ivanti_business_object`
+  - generic CRUD for any Ivanti business object such as `incidents`, `changes`, `employees`, or custom objects
+- `ivanti_incident` role
+  - thin role wrapper around the incident module
+- Example playbooks for AAP / Event-Driven Ansible workflows
+
+## Install locally
+
+```bash
+ansible-galaxy collection install ./mlowcher-ivanti_itsm-0.1.0.tar.gz
+```
+
+Or during development:
+
+```bash
+mkdir -p ~/.ansible/collections/ansible_collections/mlowcher
+cp -R . ~/.ansible/collections/ansible_collections/mlowcher/ivanti_itsm
+```
+
+## Authentication
+
+Supported options:
+
+1. Existing API token/session key:
+
+```yaml
+ivanti_token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
+```
+
+2. Username/password login:
+
+```yaml
+ivanti_username: "{{ lookup('env', 'IVANTI_USERNAME') }}"
+ivanti_password: "{{ lookup('env', 'IVANTI_PASSWORD') }}"
+ivanti_tenant: "{{ lookup('env', 'IVANTI_TENANT') }}"
+```
+
+The module uses `/api/rest/authentication/login` for username/password auth and `/api/odata/businessobject/<object>` for business object operations.
+
+## Create an incident
+
+```yaml
+- name: Create Ivanti incident for network drift
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Open incident
+      mlowcher.ivanti_itsm.ivanti_incident:
+        base_url: "https://your-tenant.example.com"
+        token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
+        validate_certs: true
+        state: present
+        subject: "Network drift detected on {{ inventory_hostname | default('router1') }}"
+        description: "AAP detected NTP drift. Job ID: {{ tower_job_id | default('manual') }}"
+        priority: High
+        fields:
+          Category: Network
+          Source: Ansible Automation Platform
+      register: incident_result
+
+    - debug:
+        var: incident_result.record
+```
+
+## Update an incident
+
+```yaml
+- name: Update incident status
+  mlowcher.ivanti_itsm.ivanti_incident:
+    base_url: "https://your-tenant.example.com"
+    token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
+    state: present
+    rec_id: "{{ ivanti_rec_id }}"
+    fields:
+      Status: Active
+      Description: "AAP remediation workflow has started."
+```
+
+## Close an incident using a Quick Action
+
+```yaml
+- name: Close incident
+  mlowcher.ivanti_itsm.ivanti_incident:
+    base_url: "https://your-tenant.example.com"
+    token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
+    state: closed
+    rec_id: "{{ ivanti_rec_id }}"
+    quick_action: Close
+    fields:
+      Resolution: "Resolved by Ansible Automation Platform"
+```
+
+## Configure AAP (config as code)
+
+Everything this solution needs in Ansible Automation Platform is declared as code so a new user can stand it up in one command. The layer uses native, certified collections: `ansible.platform` for gateway objects, `ansible.controller` for controller objects, and `ansible.eda` for Event-Driven Ansible.
+
+What it creates: an organization, an execution environment, a localhost inventory, a **custom Ivanti credential type** (injecting `IVANTI_BASE_URL` / `IVANTI_TOKEN`), an Ivanti credential, a project synced from this repo, job templates for create/query/close (with the Ivanti credential attached), and a decision environment + EDA project + rulebook activation for the closed-loop drift→incident flow.
+
+1. Edit the single config file `vars/aap_config.yml` (hostnames, image names, org).
+2. Export connection settings (no secrets in git):
+
+```bash
+export AAP_HOSTNAME="https://aap.example.com"
+export AAP_TOKEN="<your-aap-oauth-token>"
+export IVANTI_TOKEN="<your-ivanti-api-token>"   # stored only in the AAP credential
+```
+
+3. Install dependencies and apply:
+
+```bash
+ansible-galaxy collection install -r collections/requirements.yml
+ansible-playbook playbooks/configure_aap.yml          # add --check to preview
+```
+
+The Ivanti API token is read from `IVANTI_TOKEN` at apply time and lives only inside the AAP custom credential — it is never written to git or a vault file. Job templates reference that credential, so playbooks receive `IVANTI_BASE_URL` / `IVANTI_TOKEN` as environment variables at run time.
+
+## Notes
+
+Ivanti business object names usually need to be plural, for example `incidents`, `changes`, or `employees`. Custom tenant schemas may require different field names, so use `fields` for site-specific payloads.
+
+## References
+
+- Ivanti API hub: https://www.ivanti.com/support/api
+- Ivanti REST API intro: https://help.ivanti.com/ht/help/en_US/ISM/2022/admin/Content/Configure/API/RestAPI-Introduction.htm
+- Get business objects: https://help.ivanti.com/ht/help/en_US/ISM/2022/admin/Content/Configure/API/Get-All-Business-Objects.htm

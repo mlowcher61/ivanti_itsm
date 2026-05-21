@@ -1,0 +1,19 @@
+---
+- name: Close Ivanti incident after AAP remediation
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Close incident
+      mlowcher.ivanti_itsm.ivanti_incident:
+        base_url: "{{ lookup('env', 'IVANTI_BASE_URL') }}"
+        token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
+        state: closed
+        rec_id: "{{ ivanti_rec_id }}"
+        fields:
+          Resolution: "Configuration drift remediated by Ansible Automation Platform."
+          Status: "Closed"
+      register: close_result
+
+    - ansible.builtin.debug:
+        var: close_result.record

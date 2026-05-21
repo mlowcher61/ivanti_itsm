@@ -1,0 +1,19 @@
+---
+- name: Manage Ivanti incident
+  mlowcher.ivanti_itsm.ivanti_incident:
+    base_url: "{{ ivanti_base_url }}"
+    token: "{{ ivanti_token | default(omit, true) }}"
+    username: "{{ ivanti_username | default(omit, true) }}"
+    password: "{{ ivanti_password | default(omit, true) }}"
+    tenant: "{{ ivanti_tenant | default(omit, true) }}"
+    validate_certs: "{{ ivanti_validate_certs }}"
+    state: "{{ ivanti_incident_state }}"
+    rec_id: "{{ ivanti_incident_rec_id | default(omit, true) }}"
+    query: "{{ ivanti_incident_query | default(omit, true) }}"
+    subject: "{{ ivanti_incident_subject | default(omit, true) }}"
+    description: "{{ ivanti_incident_description | default(omit, true) }}"
+    priority: "{{ ivanti_incident_priority | default(omit, true) }}"
+    status: "{{ ivanti_incident_status | default(omit, true) }}"
+    fields: "{{ ivanti_incident_fields }}"
+    quick_action: "{{ ivanti_incident_quick_action | default(omit, true) }}"
+  register: ivanti_incident_result

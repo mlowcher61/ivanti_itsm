@@ -1,0 +1,30 @@
+---
+# Closed-loop rulebook: when an event reports configuration drift, open an
+# Ivanti incident by launching the "Ivanti - Create Incident" job template.
+#
+# Rulebooks live under extensions/eda/rulebooks/ so the EDA project created by
+# playbooks/configure_aap.yml discovers this file by name (ivanti_drift.yml).
+#
+# Send a test event:
+#   curl -X POST http://<eda-host>:5000/endpoint \
+#     -H 'Content-Type: application/json' \
+#     -d '{"drift_detected": true, "device": "rtr1", "resource": "ntp"}'
+- name: Ivanti drift incident rulebook
+  hosts: all
+  sources:
+    - ansible.eda.webhook:
+        host: 0.0.0.0
+        port: 5000
+
+  rules:
+    - name: Open Ivanti incident for detected drift
+      condition: event.payload.drift_detected == true
+      action:
+        run_job_template:
+          name: "Ivanti - Create Incident"
+          # Must match aap_organization in vars/aap_config.yml.
+          organization: "Default"
+          job_args:
+            extra_vars:
+              device_name: "{{ event.payload.device }}"
+              drift_resource: "{{ event.payload.resource }}"

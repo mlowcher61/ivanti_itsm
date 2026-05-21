@@ -1,0 +1,16 @@
+---
+- name: Query active Ivanti incidents
+  hosts: localhost
+  gather_facts: false
+
+  tasks:
+    - name: Query incidents
+      mlowcher.ivanti_itsm.ivanti_incident:
+        base_url: "{{ lookup('env', 'IVANTI_BASE_URL') }}"
+        token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
+        state: query
+        query: "$top=10&$filter=Status eq 'Active'"
+      register: incidents
+
+    - ansible.builtin.debug:
+        var: incidents.record

@@ -1,0 +1,16 @@
+# Built collection artifacts
+*.tar.gz
+
+# Python / virtualenv
+.venv/
+__pycache__/
+*.pyc
+
+# Ansible
+*.retry
+collections/ansible_collections/
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/

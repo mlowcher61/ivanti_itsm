@@ -35,11 +35,11 @@ ivanti_base_url: "https://your-tenant.example.com"
 # using collections/requirements.yml).
 aap_execution_environment:
   name: "Ivanti ITSM EE"
-  image: "registry.example.com/ivanti-itsm-ee:latest"
+  image: "quay.io/locust61/ivanti_itsm:latest"
 
 aap_decision_environment:
   name: "Ivanti ITSM DE"
-  image: "registry.example.com/ivanti-itsm-de:latest"
+  image: "registry.redhat.io/ansible-automation-platform-25/de-supported-rhel8:latest"
 
 # --- Inventory (job templates need one; localhost runs the REST calls) -------
 aap_inventory:

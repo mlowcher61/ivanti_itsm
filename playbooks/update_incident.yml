@@ -1,0 +1,71 @@
+---
+- name: Update an Ivanti ITSM incident with Ansible playbook progress
+  hosts: localhost
+  gather_facts: false
+
+  # Driven by extra-vars / an AAP survey. Example:
+  #   ansible-playbook playbooks/update_incident.yml \
+  #     -e ivanti_rec_id=<RecId> \
+  #     -e ivanti_status=Active \
+  #     -e 'ivanti_progress_output=Remediation play completed: NTP reset on rtr1'
+  vars:
+    ivanti_base_url: "{{ lookup('env', 'IVANTI_BASE_URL') }}"
+    ivanti_token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
+
+    # Tenant-specific field that holds progress text. Override per tenant.
+    ivanti_progress_field: "Notes"
+    # Output captured from a prior remediation play (string or stdout block).
+    ivanti_progress_output: ""
+    # Optional new status; left unset means "don't touch the status".
+    ivanti_status: ""
+
+  tasks:
+    - name: Require a target incident RecId
+      ansible.builtin.assert:
+        that:
+          - ivanti_rec_id is defined
+          - ivanti_rec_id | length > 0
+        fail_msg: "ivanti_rec_id is required (the RecId of the incident to update)."
+
+    - name: Require something to update
+      ansible.builtin.assert:
+        that:
+          - (ivanti_progress_output | length > 0) or (ivanti_status | length > 0)
+        fail_msg: "Provide ivanti_progress_output and/or ivanti_status."
+
+    # TODO(you): compose the progress note that gets written to the incident.
+    #
+    # This is the business-logic decision: what does one progress entry look
+    # like? An AAP job ID + UTC timestamp makes the note self-documenting in
+    # the ITSM audit trail, vs. just dumping raw stdout. Build the final text
+    # into the `progress_note` fact below.
+    #
+    # Available context you may want to fold in:
+    #   - ivanti_progress_output      (the play output passed in)
+    #   - lookup('env', 'JOB_ID')     (AAP controller job id, when present)
+    #   - '%Y-%m-%dT%H:%M:%SZ' | strftime  (a timestamp)
+    - name: Build the progress note
+      ansible.builtin.set_fact:
+        progress_note: >-
+          {# <-- replace this with your formatting #}
+          {{ ivanti_progress_output }}
+      when: ivanti_progress_output | length > 0
+
+    - name: Update incident
+      mlowcher.ivanti_itsm.ivanti_incident:
+        base_url: "{{ ivanti_base_url }}"
+        token: "{{ ivanti_token }}"
+        validate_certs: true
+        state: present
+        rec_id: "{{ ivanti_rec_id }}"
+        status: "{{ ivanti_status | default(omit, true) }}"
+        fields: >-
+          {{
+            ({} if (progress_note | default('') | length == 0)
+                else {ivanti_progress_field: progress_note})
+          }}
+      register: updated_incident
+
+    - name: Show Ivanti response
+      ansible.builtin.debug:
+        var: updated_incident.record

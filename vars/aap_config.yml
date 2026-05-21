@@ -90,6 +90,8 @@ aap_job_templates:
     playbook: "playbooks/create_incident.yml"
   - name: "Ivanti - Query Incidents"
     playbook: "playbooks/query_incidents.yml"
+  - name: "Ivanti - Update Incident"
+    playbook: "playbooks/update_incident.yml"
   - name: "Ivanti - Close Incident"
     playbook: "playbooks/close_incident.yml"
 

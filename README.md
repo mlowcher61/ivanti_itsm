@@ -75,6 +75,9 @@ The module uses `/api/rest/authentication/login` for username/password auth and 
 
 ## Update an incident
 
+An update is just `state: present` with a `rec_id` — when the RecId is set the
+module patches the existing record instead of creating a new one.
+
 ```yaml
 - name: Update incident status
   mlowcher.ivanti_itsm.ivanti_incident:
@@ -86,6 +89,29 @@ The module uses `/api/rest/authentication/login` for username/password auth and 
       Status: Active
       Description: "AAP remediation workflow has started."
 ```
+
+The `playbooks/update_incident.yml` playbook wraps this for the common
+closed-loop case: posting **progress from an Ansible run** back onto the
+incident and optionally changing its status. It is survey-friendly — drive it
+from an AAP job template with these extra-vars:
+
+```bash
+ansible-playbook playbooks/update_incident.yml \
+  -e ivanti_rec_id=<RecId> \
+  -e ivanti_status=Active \
+  -e 'ivanti_progress_output=Remediation play completed: NTP reset on rtr1'
+```
+
+- `ivanti_rec_id` — the incident to update (required).
+- `ivanti_progress_output` — text/stdout from the prior play, written to the
+  tenant's progress field (`ivanti_progress_field`, default `Notes`).
+- `ivanti_status` — optional; left unset, the existing status is untouched
+  (via `default(omit, true)`).
+
+Provide at least one of `ivanti_progress_output` or `ivanti_status`. Note that
+the module **overwrites** the progress field rather than appending; for a
+running history, query the current value first or write to a dedicated Journal
+business object with `ivanti_business_object`.
 
 ## Close an incident using a Quick Action
 
@@ -105,7 +131,7 @@ The module uses `/api/rest/authentication/login` for username/password auth and 
 
 Everything this solution needs in Ansible Automation Platform is declared as code so a new user can stand it up in one command. The layer uses native, certified collections: `ansible.platform` for gateway objects, `ansible.controller` for controller objects, and `ansible.eda` for Event-Driven Ansible.
 
-What it creates: an organization, an execution environment, a localhost inventory, a **custom Ivanti credential type** (injecting `IVANTI_BASE_URL` / `IVANTI_TOKEN`), an Ivanti credential, a project synced from this repo, job templates for create/query/close (with the Ivanti credential attached), and a decision environment + EDA project + rulebook activation for the closed-loop drift→incident flow.
+What it creates: an organization, an execution environment, a localhost inventory, a **custom Ivanti credential type** (injecting `IVANTI_BASE_URL` / `IVANTI_TOKEN`), an Ivanti credential, a project synced from this repo, job templates for create/query/update/close (with the Ivanti credential attached), and a decision environment + EDA project + rulebook activation for the closed-loop drift→incident flow.
 
 1. Edit the single config file `vars/aap_config.yml` (hostnames, image names, org).
 2. Export connection settings (no secrets in git):

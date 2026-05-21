@@ -125,6 +125,36 @@ ansible-playbook playbooks/configure_aap.yml          # add --check to preview
 
 The Ivanti API token is read from `IVANTI_TOKEN` at apply time and lives only inside the AAP custom credential — it is never written to git or a vault file. Job templates reference that credential, so playbooks receive `IVANTI_BASE_URL` / `IVANTI_TOKEN` as environment variables at run time.
 
+### Custom credential type example
+
+This is the credential type the config-as-code layer creates, exactly as declared in `vars/aap_config.yml`. The `inputs` define the credential's fields (the token is `secret: true`, so AAP masks it); the `injectors` expose those fields to playbooks as `IVANTI_*` environment variables at job run time:
+
+```yaml
+aap_credential_type:
+  name: "Ivanti ITSM"
+  inputs:
+    fields:
+      - id: ivanti_base_url
+        type: string
+        label: "Ivanti Base URL"
+      - id: ivanti_token
+        type: string
+        label: "Ivanti API Token"
+        secret: true
+    required:
+      - ivanti_base_url
+      - ivanti_token
+  injectors:
+    env:
+      # !unsafe is required: this Jinja is rendered by AAP at job run time,
+      # not by the playbook that creates the credential type. Without it,
+      # configure_aap.yml would resolve these to empty strings.
+      IVANTI_BASE_URL: !unsafe "{{ ivanti_base_url }}"
+      IVANTI_TOKEN: !unsafe "{{ ivanti_token }}"
+```
+
+To add another field (for example a `tenant`), add it under `inputs.fields`, reference it in an injector, and the modules will receive it. The modules already read `IVANTI_BASE_URL` and `IVANTI_TOKEN` from the environment, so no module change is needed for those two.
+
 ## Notes
 
 Ivanti business object names usually need to be plural, for example `incidents`, `changes`, or `employees`. Custom tenant schemas may require different field names, so use `fields` for site-specific payloads.

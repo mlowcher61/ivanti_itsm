@@ -181,6 +181,36 @@ aap_credential_type:
 
 To add another field (for example a `tenant`), add it under `inputs.fields`, reference it in an injector, and the modules will receive it. The modules already read `IVANTI_BASE_URL` and `IVANTI_TOKEN` from the environment, so no module change is needed for those two.
 
+## Build the execution environment
+
+Job templates run inside an execution environment (EE) — a container image
+that bundles this collection and its dependencies. A custom EE definition
+lives in `execution-environment/`, built with
+[`ansible-builder`](https://ansible.readthedocs.io/projects/builder/) on the
+Red Hat certified `ee-supported-rhel9` base.
+
+The definition reuses `collections/requirements.yml` as its single source of
+galaxy dependencies, so the image, the AAP project sync, and local installs
+all resolve the same collections.
+
+```bash
+# The supported base image is pulled from registry.redhat.io.
+podman login registry.redhat.io
+
+ansible-builder build \
+  --file execution-environment/execution-environment.yml \
+  --context execution-environment/context \
+  --tag registry.example.com/ivanti-itsm-ee:latest
+
+# Push it to your registry, then point AAP at the tag:
+podman push registry.example.com/ivanti-itsm-ee:latest
+```
+
+Set `aap_execution_environment.image` in `vars/aap_config.yml` to the pushed
+tag, and `configure_aap.yml` will register the EE and attach it to every job
+template. Add tenant-specific Python or system packages by editing
+`execution-environment/requirements.txt` and `execution-environment/bindep.txt`.
+
 ## Notes
 
 Ivanti business object names usually need to be plural, for example `incidents`, `changes`, or `employees`. Custom tenant schemas may require different field names, so use `fields` for site-specific payloads.

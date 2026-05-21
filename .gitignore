@@ -10,6 +10,9 @@ __pycache__/
 *.retry
 collections/ansible_collections/
 
+# ansible-builder generated build context
+execution-environment/context/
+
 # Editor / OS
 .DS_Store
 .idea/

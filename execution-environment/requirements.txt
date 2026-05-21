@@ -1,0 +1,8 @@
+# Python dependencies for the Ivanti ITSM execution environment.
+#
+# The collection's modules talk to Ivanti through Ansible's built-in
+# fetch_url (stdlib urllib), so no extra Python packages are required for the
+# happy path. Add tenant-specific needs here, e.g. uncomment to pin a modern
+# requests/urllib3 if your tenant requires a custom TLS/proxy stack:
+#
+#   requests>=2.31

@@ -1,0 +1,35 @@
+---
+# =============================================================================
+# Custom execution environment for the Ivanti ITSM solution.
+#
+# Build (requires ansible-builder and podman/docker, plus a login to
+# registry.redhat.io for the supported base image):
+#
+#   podman login registry.redhat.io
+#   ansible-builder build \
+#     --file execution-environment/execution-environment.yml \
+#     --context execution-environment/context \
+#     --tag registry.example.com/ivanti-itsm-ee:latest
+#
+# Then push it and point aap_execution_environment.image in
+# vars/aap_config.yml at the pushed tag.
+# =============================================================================
+version: 3
+
+images:
+  base_image:
+    # Red Hat certified "supported" EE: ships the common certified collections
+    # preinstalled on a RHEL 9 base. Requires registry.redhat.io auth to pull.
+    name: registry.redhat.io/ansible-automation-platform-25/ee-supported-rhel9:latest
+
+dependencies:
+  # Single source of truth: reuse the project-level requirements so the EE,
+  # the AAP project sync, and local installs all resolve the same collections
+  # (this collection + ansible.platform / controller / eda).
+  galaxy: ../collections/requirements.yml
+  python: requirements.txt
+  system: bindep.txt
+
+options:
+  # ee-supported uses microdnf as its package manager.
+  package_manager_path: /usr/bin/microdnf

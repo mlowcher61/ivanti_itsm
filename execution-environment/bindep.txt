@@ -1,0 +1,8 @@
+# System (RPM) packages for the Ivanti ITSM execution environment, in
+# bindep format. The supported base image already includes git and the
+# common build/runtime libraries, so nothing extra is required by default.
+# Add tenant-specific system libraries below if a Python dependency needs
+# them to compile, e.g.:
+#
+#   gcc [platform:rpm compile]
+#   libxml2-devel [platform:rpm compile]

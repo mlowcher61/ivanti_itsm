@@ -47,7 +47,8 @@
     - name: Build the progress note
       ansible.builtin.set_fact:
         progress_note: >-
-          {# <-- replace this with your formatting #}
+          [{{ '%Y-%m-%dT%H:%M:%SZ' | strftime }}]
+          AAP job {{ lookup('env', 'JOB_ID') | default('manual', true) }}:
           {{ ivanti_progress_output }}
       when: ivanti_progress_output | length > 0
 

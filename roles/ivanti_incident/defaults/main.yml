@@ -14,3 +14,10 @@ ivanti_incident_status: ""
 ivanti_incident_fields: {}
 ivanti_incident_query: ""
 ivanti_incident_quick_action: ""
+ivanti_incident_note: ""
+ivanti_incident_note_subject: ""
+ivanti_incident_note_category: ""
+ivanti_incident_note_field: ""
+ivanti_incident_note_fields: {}
+ivanti_incident_relationship_name: "IncidentContainsJournal"
+ivanti_incident_note_rec_id: ""

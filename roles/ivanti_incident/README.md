@@ -30,8 +30,17 @@ so it slots cleanly into AAP job templates.
 | `ivanti_incident_fields` | `{}` | Raw `fields` dict for site-specific payloads. |
 | `ivanti_incident_query` | `""` | Raw OData query string (for `query`). |
 | `ivanti_incident_quick_action` | `""` | Quick Action name for `closed`/`resolved`. |
+| `ivanti_incident_note` | `""` | Journal note text. When set (and state is `present`/`closed`/`resolved`), a note is added to the incident. |
+| `ivanti_incident_note_subject` | `""` | Optional note subject. |
+| `ivanti_incident_note_category` | `""` | Optional journal category. |
+| `ivanti_incident_note_field` | `""` | Journal field the note text maps to (module default `Body`). |
+| `ivanti_incident_note_fields` | `{}` | Raw `fields` dict for the note payload. |
+| `ivanti_incident_relationship_name` | `IncidentContainsJournal` | Relationship linking the note to the incident. |
+| `ivanti_incident_note_rec_id` | `""` | Override the incident RecId the note attaches to. Defaults to `ivanti_incident_rec_id`, else the RecId of the incident created in the same run. |
 
 Empty variables are omitted from the module call, so they don't send empty parameters.
+
+When `ivanti_incident_note` is set, the role adds the note after managing the incident — so a single run can create an incident and immediately record a note on it.
 
 ## Example Playbook
 
@@ -45,6 +54,7 @@ Empty variables are omitted from the module call, so they don't send empty param
         ivanti_incident_subject: "Drift detected on rtr1"
         ivanti_incident_description: "Configuration drift remediated by AAP."
         ivanti_incident_priority: "3"
+        ivanti_incident_note: "Remediated by AAP job {{ tower_job_id | default('manual') }}."
 ```
 
 ## License

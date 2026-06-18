@@ -17,3 +17,27 @@
     fields: "{{ ivanti_incident_fields }}"
     quick_action: "{{ ivanti_incident_quick_action | default(omit, true) }}"
   register: ivanti_incident_result
+
+- name: Add note to Ivanti incident
+  mlowcher61.ivanti_itsm.ivanti_ticket_note:
+    base_url: "{{ ivanti_base_url }}"
+    token: "{{ ivanti_token | default(omit, true) }}"
+    username: "{{ ivanti_username | default(omit, true) }}"
+    password: "{{ ivanti_password | default(omit, true) }}"
+    tenant: "{{ ivanti_tenant | default(omit, true) }}"
+    validate_certs: "{{ ivanti_validate_certs }}"
+    ticket_object: incidents
+    ticket_rec_id: >-
+      {{ ivanti_incident_note_rec_id
+         | default(ivanti_incident_rec_id, true)
+         | default(ivanti_incident_result.record.RecId | default(''), true) }}
+    relationship_name: "{{ ivanti_incident_relationship_name }}"
+    note: "{{ ivanti_incident_note }}"
+    note_field: "{{ ivanti_incident_note_field | default(omit, true) }}"
+    subject: "{{ ivanti_incident_note_subject | default(omit, true) }}"
+    category: "{{ ivanti_incident_note_category | default(omit, true) }}"
+    fields: "{{ ivanti_incident_note_fields }}"
+  when:
+    - ivanti_incident_note | length > 0
+    - ivanti_incident_state in ['present', 'closed', 'resolved']
+  register: ivanti_incident_note_result

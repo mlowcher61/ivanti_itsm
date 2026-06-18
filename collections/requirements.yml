@@ -7,7 +7,7 @@
 collections:
   # This collection (Ivanti ITSM modules + roles). Pin to your published version
   # or install from git during development.
-  - name: mlowcher.ivanti_itsm
+  - name: mlowcher61.ivanti_itsm
     source: https://github.com/mlowcher61/ivanti_itsm.git
     type: git
     version: main

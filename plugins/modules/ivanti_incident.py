@@ -71,7 +71,7 @@ author:
 
 EXAMPLES = r'''
 - name: Open an Ivanti incident
-  mlowcher.ivanti_itsm.ivanti_incident:
+  mlowcher61.ivanti_itsm.ivanti_incident:
     base_url: https://tenant.example.com
     token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
     state: present
@@ -83,14 +83,14 @@ EXAMPLES = r'''
       Source: Ansible Automation Platform
 
 - name: Query active incidents
-  mlowcher.ivanti_itsm.ivanti_incident:
+  mlowcher61.ivanti_itsm.ivanti_incident:
     base_url: https://tenant.example.com
     token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
     state: query
     query: "$filter=Status eq 'Active'&$top=10"
 
 - name: Close an incident
-  mlowcher.ivanti_itsm.ivanti_incident:
+  mlowcher61.ivanti_itsm.ivanti_incident:
     base_url: https://tenant.example.com
     token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
     state: closed
@@ -111,7 +111,7 @@ status_code:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.mlowcher.ivanti_itsm.plugins.module_utils.ivanti_client import IvantiClient, IvantiError
+from ansible_collections.mlowcher61.ivanti_itsm.plugins.module_utils.ivanti_client import IvantiClient, IvantiError
 
 
 def incident_fields(params):

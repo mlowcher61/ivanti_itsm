@@ -67,7 +67,7 @@ author:
 
 EXAMPLES = r'''
 - name: Get open incidents
-  mlowcher.ivanti_itsm.ivanti_business_object:
+  mlowcher61.ivanti_itsm.ivanti_business_object:
     base_url: https://tenant.example.com
     token: "{{ ivanti_token }}"
     object_name: incidents
@@ -75,7 +75,7 @@ EXAMPLES = r'''
     query: "$top=10&$filter=Status eq 'Active'"
 
 - name: Create a custom business object record
-  mlowcher.ivanti_itsm.ivanti_business_object:
+  mlowcher61.ivanti_itsm.ivanti_business_object:
     base_url: https://tenant.example.com
     token: "{{ ivanti_token }}"
     object_name: incidents
@@ -101,7 +101,7 @@ changed:
 '''
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.mlowcher.ivanti_itsm.plugins.module_utils.ivanti_client import IvantiClient, IvantiError
+from ansible_collections.mlowcher61.ivanti_itsm.plugins.module_utils.ivanti_client import IvantiClient, IvantiError
 
 
 def run_module():

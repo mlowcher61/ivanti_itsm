@@ -1,4 +1,4 @@
-# mlowcher.ivanti_itsm
+# mlowcher61.ivanti_itsm
 
 Starter Ansible collection for automating Ivanti Neurons for ITSM / Ivanti Service Manager using the REST/OData Business Object API.
 
@@ -6,9 +6,9 @@ This collection is intentionally REST-first. Ivanti ITSM tenant schemas are ofte
 
 ## Included
 
-- `mlowcher.ivanti_itsm.ivanti_incident`
+- `mlowcher61.ivanti_itsm.ivanti_incident`
   - create, get, update, delete, close, resolve incident records
-- `mlowcher.ivanti_itsm.ivanti_business_object`
+- `mlowcher61.ivanti_itsm.ivanti_business_object`
   - generic CRUD for any Ivanti business object such as `incidents`, `changes`, `employees`, or custom objects
 - `ivanti_incident` role
   - thin role wrapper around the incident module
@@ -17,14 +17,14 @@ This collection is intentionally REST-first. Ivanti ITSM tenant schemas are ofte
 ## Install locally
 
 ```bash
-ansible-galaxy collection install ./mlowcher-ivanti_itsm-0.1.0.tar.gz
+ansible-galaxy collection install ./mlowcher61-ivanti_itsm-0.1.0.tar.gz
 ```
 
 Or during development:
 
 ```bash
-mkdir -p ~/.ansible/collections/ansible_collections/mlowcher
-cp -R . ~/.ansible/collections/ansible_collections/mlowcher/ivanti_itsm
+mkdir -p ~/.ansible/collections/ansible_collections/mlowcher61
+cp -R . ~/.ansible/collections/ansible_collections/mlowcher61/ivanti_itsm
 ```
 
 ## Authentication
@@ -56,7 +56,7 @@ The module uses `/api/rest/authentication/login` for username/password auth and 
 
   tasks:
     - name: Open incident
-      mlowcher.ivanti_itsm.ivanti_incident:
+      mlowcher61.ivanti_itsm.ivanti_incident:
         base_url: "https://your-tenant.example.com"
         token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
         validate_certs: true
@@ -80,7 +80,7 @@ module patches the existing record instead of creating a new one.
 
 ```yaml
 - name: Update incident status
-  mlowcher.ivanti_itsm.ivanti_incident:
+  mlowcher61.ivanti_itsm.ivanti_incident:
     base_url: "https://your-tenant.example.com"
     token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
     state: present
@@ -117,7 +117,7 @@ business object with `ivanti_business_object`.
 
 ```yaml
 - name: Close incident
-  mlowcher.ivanti_itsm.ivanti_incident:
+  mlowcher61.ivanti_itsm.ivanti_incident:
     base_url: "https://your-tenant.example.com"
     token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
     state: closed

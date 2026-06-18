@@ -53,7 +53,7 @@
       when: ivanti_progress_output | length > 0
 
     - name: Update incident
-      mlowcher.ivanti_itsm.ivanti_incident:
+      mlowcher61.ivanti_itsm.ivanti_incident:
         base_url: "{{ ivanti_base_url }}"
         token: "{{ ivanti_token }}"
         validate_certs: true

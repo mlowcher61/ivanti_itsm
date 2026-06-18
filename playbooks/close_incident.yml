@@ -5,7 +5,7 @@
 
   tasks:
     - name: Close incident
-      mlowcher.ivanti_itsm.ivanti_incident:
+      mlowcher61.ivanti_itsm.ivanti_incident:
         base_url: "{{ lookup('env', 'IVANTI_BASE_URL') }}"
         token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
         state: closed

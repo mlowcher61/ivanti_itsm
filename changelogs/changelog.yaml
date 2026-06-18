@@ -4,7 +4,7 @@ releases:
     release_date: '2026-06-18'
     changes:
       release_summary: >-
-        Initial release of the mlowcher.ivanti_itsm collection. Automates Ivanti
+        Initial release of the mlowcher61.ivanti_itsm collection. Automates Ivanti
         Neurons for ITSM / Ivanti Service Manager through its REST/OData Business
         Object API, built for Ansible Automation Platform (AAP) and Event-Driven
         Ansible (EDA) with closed-loop remediation as the primary use case.

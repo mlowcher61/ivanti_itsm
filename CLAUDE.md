@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-`mlowcher.ivanti_itsm` — an Ansible **collection** that automates Ivanti Neurons for ITSM / Ivanti Service Manager through its REST/OData Business Object API. It is built for Ansible Automation Platform (AAP) and Event-Driven Ansible (EDA), with closed-loop remediation (detect → open incident → remediate → close) as the primary use case.
+`mlowcher61.ivanti_itsm` — an Ansible **collection** that automates Ivanti Neurons for ITSM / Ivanti Service Manager through its REST/OData Business Object API. It is built for Ansible Automation Platform (AAP) and Event-Driven Ansible (EDA), with closed-loop remediation (detect → open incident → remediate → close) as the primary use case.
 
 The collection is intentionally REST-first because Ivanti tenant schemas are heavily customized. Every module accepts a raw `fields` dict so site-specific payloads work without code changes.
 
@@ -22,7 +22,7 @@ All HTTP traffic flows through a single shared client; modules are thin argument
 
 ### Key conventions to preserve
 
-- **Modules import the client via the fully-qualified path** `ansible_collections.mlowcher.ivanti_itsm.plugins.module_utils.ivanti_client`. This means modules only resolve when the collection is installed into a collections path (see below) — you cannot run a module file directly from the repo.
+- **Modules import the client via the fully-qualified path** `ansible_collections.mlowcher61.ivanti_itsm.plugins.module_utils.ivanti_client`. This means modules only resolve when the collection is installed into a collections path (see below) — you cannot run a module file directly from the repo.
 - **Business object names are plural** (`incidents`, not `incident`) and OData record access uses `(...)` syntax: `/api/odata/businessobject/incidents('RecId')`.
 - **Auth is token-or-login.** If `token` is set it's used as a Bearer token. Otherwise `authenticate()` POSTs to `/api/rest/authentication/login` and probes many possible response keys (`token`, `SessionKey`, `access_token`, `value`, raw string) because the key varies by tenant/version. When adding auth handling, extend that probe list rather than assuming one shape.
 - **Quick Action URLs vary by tenant.** `quick_action()` uses a common default (`.../QuickAction.<name>`); customers with custom action URLs are expected to fall back to `ivanti_business_object`.
@@ -51,14 +51,14 @@ ansible-galaxy collection build
 Install it (required before modules/playbooks will resolve, because of the fully-qualified import path):
 
 ```bash
-ansible-galaxy collection install ./mlowcher-ivanti_itsm-0.1.0.tar.gz --force
+ansible-galaxy collection install ./mlowcher61-ivanti_itsm-0.1.0.tar.gz --force
 ```
 
 For iterative development, symlink/copy the repo into a collections path instead of rebuilding each time:
 
 ```bash
-mkdir -p ~/.ansible/collections/ansible_collections/mlowcher
-ln -s "$PWD" ~/.ansible/collections/ansible_collections/mlowcher/ivanti_itsm
+mkdir -p ~/.ansible/collections/ansible_collections/mlowcher61
+ln -s "$PWD" ~/.ansible/collections/ansible_collections/mlowcher61/ivanti_itsm
 ```
 
 Run a playbook (expects `IVANTI_BASE_URL` and `IVANTI_TOKEN` in the environment):

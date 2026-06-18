@@ -10,6 +10,8 @@ This collection is intentionally REST-first. Ivanti ITSM tenant schemas are ofte
   - create, get, update, delete, close, resolve incident records
 - `mlowcher61.ivanti_itsm.ivanti_business_object`
   - generic CRUD for any Ivanti business object such as `incidents`, `changes`, `employees`, or custom objects
+- `mlowcher61.ivanti_itsm.ivanti_ticket_note`
+  - add a journal note to any ticket (incident, change, or custom object) for closed-loop write-backs
 - `ivanti_incident` role
   - thin role wrapper around the incident module
 - Example playbooks for AAP / Event-Driven Ansible workflows
@@ -17,7 +19,7 @@ This collection is intentionally REST-first. Ivanti ITSM tenant schemas are ofte
 ## Install locally
 
 ```bash
-ansible-galaxy collection install ./mlowcher61-ivanti_itsm-0.1.0.tar.gz
+ansible-galaxy collection install ./mlowcher61-ivanti_itsm-0.2.0.tar.gz
 ```
 
 Or during development:

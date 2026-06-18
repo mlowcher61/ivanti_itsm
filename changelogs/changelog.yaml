@@ -15,3 +15,16 @@ releases:
       - name: ivanti_incident
         description: Manage Ivanti ITSM incidents
         namespace: ''
+  0.2.0:
+    release_date: '2026-06-18'
+    changes:
+      release_summary: >-
+        Adds the ivanti_ticket_note module for recording journal notes on tickets,
+        supporting closed-loop remediation write-backs.
+      minor_changes:
+        - ivanti_client - add C(add_related) helper that creates a child business object
+          and links it to a parent through a relationship navigation property.
+    modules:
+      - name: ivanti_ticket_note
+        description: Add a journal note to an Ivanti ITSM ticket
+        namespace: ''

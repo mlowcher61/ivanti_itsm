@@ -124,6 +124,14 @@ class IvantiClient(object):
     def delete_object(self, object_name, rec_id):
         return self.request('DELETE', self.business_path(object_name, rec_id=rec_id))
 
+    def add_related(self, object_name, rec_id, relationship_name, fields):
+        # Create a child business object and link it to a parent through a relationship
+        # navigation property, e.g. POST /businessobject/incidents('RecId')/IncidentContainsJournal.
+        # Used for journal notes and any other related-object creation. Relationship names vary
+        # by tenant schema; callers pass the exact name (IncidentContainsJournal, ChangeContainsJournal, ...).
+        path = self.business_path(object_name, rec_id=rec_id) + '/' + relationship_name.strip('/')
+        return self.request('POST', path, body=fields)
+
     def quick_action(self, object_name, rec_id, action_name, fields=None):
         # Ivanti Quick Action endpoints vary by version/tenant. This default works for many Neurons for ITSM tenants,
         # but override with raw business_object usage if your tenant requires a custom action URL.

@@ -1,0 +1,29 @@
+---
+- name: Add a note to an Ivanti ITSM ticket from AAP
+  hosts: localhost
+  gather_facts: false
+
+  vars:
+    ivanti_base_url: "{{ lookup('env', 'IVANTI_BASE_URL') }}"
+    ivanti_token: "{{ lookup('env', 'IVANTI_TOKEN') }}"
+
+  tasks:
+    - name: Add automation result note to the ticket
+      mlowcher61.ivanti_itsm.ivanti_ticket_note:
+        base_url: "{{ ivanti_base_url }}"
+        token: "{{ ivanti_token }}"
+        validate_certs: true
+        ticket_object: "{{ ivanti_ticket_object | default('incidents') }}"
+        ticket_rec_id: "{{ ivanti_rec_id }}"
+        relationship_name: "{{ ivanti_relationship_name | default('IncidentContainsJournal') }}"
+        subject: "{{ ivanti_note_subject | default('Ansible Automation Platform update') }}"
+        note: |
+          Ansible Automation Platform completed remediation.
+          Host: {{ device_name | default('unknown-device') }}
+          Result: {{ remediation_result | default('Success') }}
+          AAP Job ID: {{ tower_job_id | default('manual-run') }}
+      register: ticket_note
+
+    - name: Show Ivanti response
+      ansible.builtin.debug:
+        var: ticket_note.record

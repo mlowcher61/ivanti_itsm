@@ -62,7 +62,7 @@ options:
     type: bool
     default: false
 author:
-  - Mark Lowcher
+  - Mark Lowcher (@mlowcher61)
 '''
 
 EXAMPLES = r'''

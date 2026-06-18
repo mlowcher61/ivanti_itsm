@@ -14,7 +14,6 @@ tags:
   - automation
   - aap
   - eda
-  - servicenow
 repository: https://github.com/mlowcher61/ivanti_itsm
 issues: https://github.com/mlowcher61/ivanti_itsm/issues
 build_ignore:

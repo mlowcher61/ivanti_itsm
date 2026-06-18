@@ -66,7 +66,7 @@ options:
     type: str
     description: Quick Action name used for closed/resolved states. Defaults to Close or Resolve.
 author:
-  - Mark Lowcher
+  - Mark Lowcher (@mlowcher61)
 '''
 
 EXAMPLES = r'''

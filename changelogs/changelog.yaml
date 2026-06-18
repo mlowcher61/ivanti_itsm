@@ -28,3 +28,13 @@ releases:
       - name: ivanti_ticket_note
         description: Add a journal note to an Ivanti ITSM ticket
         namespace: ''
+  0.2.1:
+    release_date: '2026-06-18'
+    changes:
+      release_summary: >-
+        Adds journal note support to the ivanti_incident role.
+      minor_changes:
+        - ivanti_incident role - record a journal note after managing an incident.
+          When C(ivanti_incident_note) is set and state is present/closed/resolved,
+          the role calls ivanti_ticket_note, auto-resolving the RecId from the
+          override, the operated incident, or the one created in the same run.

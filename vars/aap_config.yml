@@ -94,6 +94,8 @@ aap_job_templates:
     playbook: "playbooks/update_incident.yml"
   - name: "Ivanti - Close Incident"
     playbook: "playbooks/close_incident.yml"
+  - name: "Ivanti - Add Comment to Incident"
+    playbook: "playbooks/add_ticket_note.yml"
 
 # --- EDA rulebook activation (closed-loop drift -> incident) -----------------
 aap_rulebook_activation:

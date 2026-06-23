@@ -121,17 +121,17 @@
         label: "{{ item.name }}"
 
     # --- Event-Driven Ansible: closed-loop remediation -----------------------
-    - name: Ensure decision environment exists
-      ansible.eda.decision_environment:
-        name: "{{ aap_decision_environment.name }}"
-        image: "{{ aap_decision_environment.image }}"
-        organization_name: "{{ aap_organization }}"
-        state: present
-
     - name: Ensure EDA project exists
       ansible.eda.project:
         name: "{{ aap_eda_project.name }}"
         url: "{{ aap_eda_project.scm_url }}"
+        organization_name: "{{ aap_organization }}"
+        state: present
+        
+    - name: Ensure decision environment exists
+      ansible.eda.decision_environment:
+        name: "{{ aap_decision_environment.name }}"
+        image: "{{ aap_decision_environment.image }}"
         organization_name: "{{ aap_organization }}"
         state: present
 

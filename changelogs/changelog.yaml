@@ -38,3 +38,18 @@ releases:
           When C(ivanti_incident_note) is set and state is present/closed/resolved,
           the role calls ivanti_ticket_note, auto-resolving the RecId from the
           override, the operated incident, or the one created in the same run.
+  0.2.2:
+    release_date: '2026-06-23'
+    changes:
+      release_summary: >-
+        Bug fixes to the configure_aap config-as-code playbook for ansible.eda
+        module parameter names.
+      bugfixes:
+        - configure_aap playbook - use C(image_url) instead of C(image) for the
+          ansible.eda.decision_environment task, which requires C(image_url) when
+          state is present.
+        - configure_aap playbook - use the canonical C(rulebook_name) parameter
+          instead of the C(rulebook) alias for ansible.eda.rulebook_activation.
+        - collections/requirements.yml - cap ansible.eda below 3.0.0 so the
+          rulebook_activation C(enabled) parameter (deprecated for removal in
+          3.0.0) remains supported.

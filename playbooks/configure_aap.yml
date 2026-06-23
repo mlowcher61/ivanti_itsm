@@ -131,7 +131,7 @@
     - name: Ensure decision environment exists
       ansible.eda.decision_environment:
         name: "{{ aap_decision_environment.name }}"
-        image: "{{ aap_decision_environment.image }}"
+        image_url: "{{ aap_decision_environment.image }}"
         organization_name: "{{ aap_organization }}"
         state: present
 
@@ -139,8 +139,12 @@
       ansible.eda.rulebook_activation:
         name: "{{ aap_rulebook_activation.name }}"
         project_name: "{{ aap_eda_project.name }}"
-        rulebook: "{{ aap_rulebook_activation.rulebook }}"
+        rulebook_name: "{{ aap_rulebook_activation.rulebook }}"
         decision_environment_name: "{{ aap_decision_environment.name }}"
         organization_name: "{{ aap_organization }}"
+        # NOTE: `enabled` is deprecated and scheduled for removal in
+        # ansible.eda 3.0.0. The collection is pinned <3.0.0 in
+        # collections/requirements.yml so this remains valid; revisit before
+        # adopting 3.x.
         enabled: "{{ aap_rulebook_activation.enabled | default(true) }}"
         state: present

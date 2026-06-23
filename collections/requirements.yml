@@ -23,5 +23,7 @@ collections:
 
   # Event-Driven Ansible objects: decision environments, EDA projects,
   # rulebook activations.
+  # Capped below 3.0.0: the rulebook_activation `enabled` parameter used in
+  # playbooks/configure_aap.yml is scheduled for removal in ansible.eda 3.0.0.
   - name: ansible.eda
-    version: ">=2.0.0"
+    version: ">=2.0.0,<3.0.0"
